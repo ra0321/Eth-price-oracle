@@ -12,6 +12,7 @@ contract EthPriceOracle {
     uint private randNonce = 0;
     uint private modulus = 1000;
     uint private numOracles = 0;
+    uint private THRESHOLD = 0;
     mapping(uint256 => bool) pendingRequests;
 
     struct Response {
@@ -64,15 +65,20 @@ contract EthPriceOracle {
         require(oracles.has(msg.sender), "Not an oracle!");
         require(pendingRequests[_id], "This request is not in my pending list.");
 
-        Response memory resp = new Response(msg.sender, _callerAddress, _ethPrice);
+        Response memory resp;
+        resp = Response(msg.sender, _callerAddress, _ethPrice);
         requestIdToResponse[_id].push(resp);
 
-        delete pendingRequests[_id];
+        uint numResponses = requestIdToResponse[_id].length;
 
-        CallerContractInterface callerContractInstance;
-        callerContractInstance = CallerContractInterface(_callerAddress);
-        callerContractInstance.callback(_ethPrice, _id);
+        if (numResponses == THRESHOLD) {
+            delete pendingRequests[_id];
 
-        emit SetLatestEthPriceEvent(_ethPrice, _callerAddress);
+            CallerContractInterface callerContractInstance;
+            callerContractInstance = CallerContractInterface(_callerAddress);
+            callerContractInstance.callback(_ethPrice, _id);
+
+            emit SetLatestEthPriceEvent(_ethPrice, _callerAddress);
+        }
     }
 }
