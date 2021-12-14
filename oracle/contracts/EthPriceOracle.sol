@@ -1,11 +1,13 @@
 pragma solidity 0.5.0;
 
 import "openzeppelin-solidity/contracts/access/Roles.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./CallerContractInterface.sol";
 
 contract EthPriceOracle {
 
     using Roles for Roles.Role;
+    using SafeMath for uint256;
 
     Roles.Role private owners;
     Roles.Role private oracles;
@@ -74,9 +76,9 @@ contract EthPriceOracle {
         if (numResponses == THRESHOLD) {
             uint computedEthPrice = 0;
             for (uint f = 0; f < requestIdToResponse[_id].length; f++) {
-                computedEthPrice += requestIdToResponse[_id][f].ethPrice;
+                computedEthPrice = computedEthPrice.add(requestIdToResponse[_id][f].ethPrice);
             }
-            computedEthPrice = computedEthPrice / numResponses;
+            computedEthPrice = computedEthPrice.div(numResponses);
 
             delete pendingRequests[_id];
 
