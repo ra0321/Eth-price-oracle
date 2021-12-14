@@ -15,9 +15,14 @@ contract EthPriceOracle {
 
     event GetLatestEthPriceEvent(address callerAddress, uint id);
     event SetLatestEthPriceEvent(uint256 ethPrice, address callerAddress);
+    event AddOracleEvent(address oracleAddress);
 
     constructor (address _owner) public {
         owners.add(_owner);
+    }
+
+    function addOracle(address _oracle) public {
+        require(owners.has(msg.sender), "Not an owner!");
     }
     
     function getLatestEthPrice() public returns (uint256) {
