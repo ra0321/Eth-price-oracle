@@ -81,12 +81,13 @@ contract EthPriceOracle {
             computedEthPrice = computedEthPrice.div(numResponses);
 
             delete pendingRequests[_id];
+            delete requestIdToResponse[_id];
 
             CallerContractInterface callerContractInstance;
             callerContractInstance = CallerContractInterface(_callerAddress);
-            callerContractInstance.callback(_ethPrice, _id);
+            callerContractInstance.callback(computedEthPrice, _id);
 
-            emit SetLatestEthPriceEvent(_ethPrice, _callerAddress);
+            emit SetLatestEthPriceEvent(computedEthPrice, _callerAddress);
         }
     }
 }
