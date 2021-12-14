@@ -32,3 +32,9 @@ async function addRequestToQueue (event) {
 	const id = event.returnValues.id
 	pendingRequests.push({callerAddress, id})
 }
+
+async function processQueue (oracleContract, ownerAddress) {
+	let processedRequests = 0
+
+	while (pendingRequests.length > 0 && processedRequests < CHUNK_SIZE) {}
+}
