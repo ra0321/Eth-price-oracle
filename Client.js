@@ -9,17 +9,6 @@ async function getCallerContract (web3js) {
   return new web3js.eth.Contract(CallerJSON.abi, CallerJSON.networks[networkId].address)
 }
 
-async function retrieveLatestEthPrice () {
-  const resp = await axios({
-    url: 'https://api.binance.com/api/v3/ticker/price',
-    params: {
-      symbol: 'ETHUSDT'
-    },
-    method: 'get'
-  })
-  return resp.data.price
-}
-
 async function filterEvents (callerContract) {
   callerContract.events.PriceUpdatedEvent({ filter: { } }, async (err, event) => {
     if (err) console.error('Error on event', err)
@@ -39,15 +28,15 @@ async function init () {
 
 (async () => {
   const { callerContract, ownerAddress, client, web3js } = await init()
-  process.on( 'SIGINT', () => {
+  process.on('SIGINT', () => {
     console.log('Calling client.disconnect()')
-    client.disconnect();
-    process.exit( );
+    client.disconnect()
+    process.exit()
   })
   const networkId = await web3js.eth.net.getId()
-  const oracleAddress =  OracleJSON.networks[networkId].address
+  const oracleAddress = OracleJSON.networks[networkId].address
   await callerContract.methods.setOracleInstanceAddress(oracleAddress).send({ from: ownerAddress })
   setInterval( async () => {
     await callerContract.methods.updateEthPrice().send({ from: ownerAddress })
-  }, SLEEP_INTERVAL);
+  }, SLEEP_INTERVAL)
 })()
